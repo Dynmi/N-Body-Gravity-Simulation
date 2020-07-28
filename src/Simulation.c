@@ -1,11 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <GL/glut.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <math.h>
 #include <string.h>
+#include <GL/glut.h>
 #include <body.h>
 #include <Config.h>
+
 
 // Config Parameters
 #define MAX_ID 20
@@ -125,6 +127,7 @@ void update_body(int id)
     track[id][cur[id]].y = obj[id].pos.y;
     track[id][cur[id]].z = obj[id].pos.z;
     cur[id] = (cur[id]+1)%TR_INTERVAL;
+    pthread_exit(NULL);
 }
 
 
@@ -135,7 +138,7 @@ void FreshBodies()
     **/
 
     int i,j;
-
+    // pthread_t tid[8];
     for(i=0; i<BODY_NUM; i++)
     {
         obj[i].a.x = 0;
@@ -156,6 +159,7 @@ void FreshBodies()
     for(i=0; i<BODY_NUM; i++)
     {
         update_body(i);
+        // int ret = pthread_create(&tid[i%8],NULL,update_body,i);
     }
 
 }
@@ -266,7 +270,8 @@ void Display(void)
 
     for(int id=0;id<BODY_NUM;id++)
     {
-        GradientC= 1.0/TR_INTERVAL;
+        
+        float GradientC= 1.0/TR_INTERVAL;
         for(int p=cur[id];;p=(p+1)%TR_INTERVAL)
         {
             GradientC+= 1.0/TR_INTERVAL;
@@ -276,8 +281,8 @@ void Display(void)
             {
                 break;
             }
-        }
-        
+        }      
+
         if(SHOW_INFO) 
         {
             printf("===>>>Obj%d  x:%.2f y:%.2f z:%.2f vx:%.2f vy:%.2f vz:%.2f  ax:%.2f ay:%.2f az:%.2f\n",  
@@ -378,7 +383,7 @@ int main(int argc, char *argv[])
     printf("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
     printf("\n\n");
 
-    glutInit();
+    glutInit(&argc, argv);
     glutInitWindowSize(WIDTH, HEIGHT);
     glutInitWindowPosition(0,0);
     glutCreateWindow("Gravity Simulation");
