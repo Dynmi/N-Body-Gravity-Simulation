@@ -8,9 +8,9 @@
 #include <body.h>
 #include <Config.h>
 
-
 // Config Parameters
-#define MAX_ID 20
+#define MAX_ID 99
+#define MAX_THREAD 32
 #define SHOW_INTERVAL 1200
 #define TR_INTERVAL  12
 float   G_newton;
@@ -23,9 +23,10 @@ int     BODY_NUM = 0;
 
 // debug & test
 #define SHOW_COORDINATE 1
-#define SHOW_INFO 1
+#define SHOW_INFO 0
 
 // Global Parameters
+pthread_t tid[MAX_THREAD];
 body    obj[MAX_ID];
 Vec3d   track[MAX_ID][TR_INTERVAL];
 int     cur[MAX_ID];
@@ -37,32 +38,23 @@ int     SHIFT_R = 0, SHIFT_D = 0;
 void read_cfg(void)
 {
     char *cfg_file = "/home/dynmi/Documents/Project/N-Body-Gravity-Simulation/setting.cfg";
-    printf("I am in baby\n");
     char key[1024] = {0}, *value;
 
     strcpy(key,"G_newton");
     readCFG(cfg_file/*in*/,key/*in*/, &value/*out*/);
-    printf("%s\n",value);
     G_newton = atof(value);
-    printf("%f\n",G_newton);
 
     strcpy(key,"PI");
     readCFG(cfg_file/*in*/,key/*in*/, &value/*out*/);
-    printf("%s\n",value);
     PI = atof(value);
-    printf("%f\n",PI);
 
     strcpy(key,"dt");
     readCFG(cfg_file/*in*/,key/*in*/, &value/*out*/);
-    printf("%s\n",value);
     dt = atof(value);
-    printf("%f\n",dt);
 
     strcpy(key,"BODY_SIZE");
     readCFG(cfg_file/*in*/,key/*in*/, &value/*out*/);
-    printf("%s\n",value);
     BODY_SIZE = atof(value);  
-    printf("%f\n",BODY_SIZE);
 
 }
 
@@ -127,7 +119,7 @@ void update_body(int id)
     track[id][cur[id]].y = obj[id].pos.y;
     track[id][cur[id]].z = obj[id].pos.z;
     cur[id] = (cur[id]+1)%TR_INTERVAL;
-    pthread_exit(NULL);
+
 }
 
 
@@ -138,7 +130,6 @@ void FreshBodies()
     **/
 
     int i,j;
-    // pthread_t tid[8];
     for(i=0; i<BODY_NUM; i++)
     {
         obj[i].a.x = 0;
@@ -158,8 +149,9 @@ void FreshBodies()
 
     for(i=0; i<BODY_NUM; i++)
     {
-        update_body(i);
-        // int ret = pthread_create(&tid[i%8],NULL,update_body,i);
+        // update_body(i);
+        pthread_create(&tid[i%MAX_THREAD],NULL,update_body,i);
+        pthread_join(tid[i%MAX_THREAD],NULL);
     }
 
 }

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "Config.h"
+#include <Config.h>
 
 
 void trim(char * strIn, char * strOut)
@@ -41,7 +41,6 @@ void getValue(char * keyAndValue, char * key, char * value)
 
     p = strstr(keyAndValue, key);//找到key的位置，指针
     if(p == NULL){
-        printf("没有key %s\n", key);
         return ;
     }
 
@@ -50,7 +49,6 @@ void getValue(char * keyAndValue, char * key, char * value)
 
     p = strstr(value, "=");//找等号的位置
     if(p == NULL){
-        printf("没有找到=\n");
         return;
     }
     p+= strlen("=");//指针后移到等号后面
@@ -85,7 +83,6 @@ void readCFG(const char *cfg_file/*in*/, const char *key/*in*/, const char **val
     if(strlen(vtemp) != 0){
         *value = (char *)malloc(sizeof(char) * strlen(vtemp) + 1);
         strcpy(*value, vtemp);
-        printf("%s\n",*value);
     }    
     else
         value = NULL;
