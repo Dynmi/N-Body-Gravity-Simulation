@@ -1,7 +1,7 @@
 # N-Body Gravity Simulation 
 
 ## Intro
-- This project originated from the problem below-----</br>
+- This project originated from the problem below:</br>
 
 ![img1](./MD_IMG/1.png)
 
